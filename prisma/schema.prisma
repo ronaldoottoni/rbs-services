@@ -13,13 +13,13 @@ datasource db {
 
 model Pessoa {
   id        String   @id @default(cuid())
-  nome      String
+  tipo      PessoaTipo
   cpfCnpj   String?
+  nome      String
   telefone  String?
   email     String?
   cidade    String?
   estado    String?
-  tipo      PessoaTipo
   ativo     Boolean  @default(true)
 
   createdAt DateTime @default(now())
@@ -30,5 +30,6 @@ enum PessoaTipo {
   CLIENTE
   FORNECEDOR
   FUNCIONARIO
+  TRANSPORTADORA
   BANCO
 }

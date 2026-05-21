@@ -14,8 +14,8 @@
 4. npx prisma init (vai criar prisma/, .env)
 5. Configurar o prisma com Supabase (.env)
    Projeto Supabase: RBS-SERVICES
-   Senha do Projeto: RBS@2025$Vicente
-   DATABASE_URL:postgresql://postgres.gljwiarydekigvyvndpg:RBS@2025$Vicente@aws-1-us-west-1.pooler.supabase.com:6543/postgres
+   Senha do Projeto: RBS2025Vicente
+   DATABASE_URL:postgresql://postgres.gljwiarydekigvyvndpg:RBS2025Vicente@aws-1-us-west-1.pooler.supabase.com:6543/postgres
 6. Configura prisma/schema.prisma
    generator client {
      provider = "prisma-client-js"
