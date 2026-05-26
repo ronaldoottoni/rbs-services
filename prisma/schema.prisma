@@ -22,6 +22,8 @@ model Pessoa {
   estado    String?
   ativo     Boolean  @default(true)
 
+  propriedades Propriedade[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -32,4 +34,31 @@ enum PessoaTipo {
   FUNCIONARIO
   TRANSPORTADORA
   BANCO
+}
+
+model Propriedade {
+  id             String   @id @default(cuid())
+  clienteId      String
+  nome           String
+  tipo           propriedade_tipo
+  matricula      String?
+  areaTotalHa    Float?
+  cidade         String?
+  estado         String?
+  endereco       String?
+  latitude       Float?
+  longitude      Float?
+  ativo          Boolean @default(true)
+
+  cliente     Pessoa           @relation(fields: [clienteId], references: [id])
+
+  created_at     DateTime @default(now())
+  updated_at     DateTime @default(now())
+}
+
+enum propriedade_tipo{
+  FAZENDA
+  SITIO
+  CHACARA
+  OUTRO
 }

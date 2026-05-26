@@ -28,3 +28,56 @@
 8. Rodar - npx prisma db pull
 9. prisma/schema.prisma : Incluir as tabelas
 10. npx prisma generate
+
+
+
+Tabelas Banco De Dados
+CREATE TYPE "PessoaTipo" AS ENUM (
+  'CLIENTE',
+  'FORNECEDOR',
+  'FUNCIONARIO',
+  'TRANSPORTADORA',
+  'BANCO'
+);
+
+CREATE TYPE "PropriedadeTipo" AS ENUM (
+  'FAZENDA',
+  'SITIO',
+  'CHACARA',
+  'OUTRO'
+);
+
+CREATE TABLE "Pessoa" (
+  "id" TEXT PRIMARY KEY,
+  "tipo" "PessoaTipo" NOT NULL,
+  "cpfCnpj" TEXT,
+  "nome" TEXT NOT NULL,
+  "telefone" TEXT,
+  "email" TEXT,
+  "cidade" TEXT,
+  "estado" TEXT,
+  "ativo" BOOLEAN NOT NULL DEFAULT TRUE,
+  "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+  "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE "Propriedade" (
+  "id" TEXT PRIMARY KEY,
+  "clienteId" TEXT NOT NULL,
+  "nome" TEXT NOT NULL,
+  "tipo" "PropriedadeTipo" NOT NULL,
+  "matricula" TEXT,
+  "areaTotalHa" DOUBLE PRECISION,
+  "cidade" TEXT,
+  "estado" TEXT,
+  "endereco" TEXT,
+  "latitude" DOUBLE PRECISION,
+  "longitude" DOUBLE PRECISION,
+  "ativo" BOOLEAN NOT NULL DEFAULT TRUE,
+  "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+  "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+
+  CONSTRAINT "Propriedade_clienteId_fkey"
+    FOREIGN KEY ("clienteId")
+    REFERENCES "Pessoa"("id")
+);
