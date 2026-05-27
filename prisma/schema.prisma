@@ -51,6 +51,7 @@ model Propriedade {
   ativo          Boolean @default(true)
 
   cliente     Pessoa           @relation(fields: [clienteId], references: [id])
+  areas AreaPropriedade[]
 
   created_at     DateTime @default(now())
   updated_at     DateTime @default(now())
@@ -61,4 +62,63 @@ enum propriedade_tipo{
   SITIO
   CHACARA
   OUTRO
+}
+
+model AreaPropriedade {
+  id                 String            @id @default(cuid())
+  propriedadeId      String
+  nome               String
+  tipo               AreaTipo
+  areaHa             Float?
+  culturaAtual       String?
+  descricao          String?
+  latitudeCentro     Float?
+  longitudeCentro    Float?
+  coordenadasGeoJson Json?
+  ativo              Boolean           @default(true)
+
+  propriedade        Propriedade       @relation(fields: [propriedadeId], references: [id])
+
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+}
+
+enum AreaTipo {
+  CULTIVO
+  PASTAGEM
+  RESERVA
+  APP
+  SEDE
+  ESTRADA
+  AGUA
+  OUTRO
+}
+
+model ServicoCatalogo {
+  id          String      @id @default(cuid())
+  nome        String
+  tipo        ServicoTipo
+  descricao   String?
+  valorPadrao Float?
+  unidade     ServicoUnidade
+  ativo       Boolean     @default(true)
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+enum ServicoTipo {
+  DRONE
+  AMBIENTAL
+  IRRIGACAO
+  CONSULTORIA
+  OUTRO
+}
+
+enum ServicoUnidade {
+  HECTARE
+  HORA
+  DIARIA
+  PROJETO
+  UNIDADE
 }

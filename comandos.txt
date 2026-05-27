@@ -81,3 +81,62 @@ CREATE TABLE "Propriedade" (
     FOREIGN KEY ("clienteId")
     REFERENCES "Pessoa"("id")
 );
+
+CREATE TYPE "AreaTipo" AS ENUM (
+  'CULTIVO',
+  'PASTAGEM',
+  'RESERVA',
+  'APP',
+  'SEDE',
+  'ESTRADA',
+  'AGUA',
+  'OUTRO'
+);
+
+CREATE TABLE "AreaPropriedade" (
+  "id" TEXT PRIMARY KEY,
+  "propriedadeId" TEXT NOT NULL,
+  "nome" TEXT NOT NULL,
+  "tipo" "AreaTipo" NOT NULL,
+  "areaHa" DOUBLE PRECISION,
+  "culturaAtual" TEXT,
+  "descricao" TEXT,
+  "latitudeCentro" DOUBLE PRECISION,
+  "longitudeCentro" DOUBLE PRECISION,
+  "coordenadasGeoJson" JSONB,
+  "ativo" BOOLEAN NOT NULL DEFAULT TRUE,
+  "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+  "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+
+  CONSTRAINT "AreaPropriedade_propriedadeId_fkey"
+    FOREIGN KEY ("propriedadeId")
+    REFERENCES "Propriedade"("id")
+);
+
+CREATE TYPE "ServicoTipo" AS ENUM (
+  'DRONE',
+  'AMBIENTAL',
+  'IRRIGACAO',
+  'CONSULTORIA',
+  'OUTRO'
+);
+
+CREATE TYPE "ServicoUnidade" AS ENUM (
+  'HECTARE',
+  'HORA',
+  'DIARIA',
+  'PROJETO',
+  'UNIDADE'
+);
+
+CREATE TABLE "ServicoCatalogo" (
+  "id" TEXT PRIMARY KEY,
+  "nome" TEXT NOT NULL,
+  "tipo" "ServicoTipo" NOT NULL,
+  "descricao" TEXT,
+  "valorPadrao" DOUBLE PRECISION,
+  "unidade" "ServicoUnidade" NOT NULL,
+  "ativo" BOOLEAN NOT NULL DEFAULT TRUE,
+  "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+  "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
+);
