@@ -47,6 +47,49 @@ CREATE TYPE "PropriedadeTipo" AS ENUM (
   'OUTRO'
 );
 
+CREATE TYPE "AreaTipo" AS ENUM (
+  'CULTIVO',
+  'PASTAGEM',
+  'RESERVA',
+  'APP',
+  'SEDE',
+  'ESTRADA',
+  'AGUA',
+  'OUTRO'
+);
+
+CREATE TYPE "ServicoTipo" AS ENUM (
+  'DRONE',
+  'AMBIENTAL',
+  'IRRIGACAO',
+  'CONSULTORIA',
+  'OUTRO'
+);
+
+CREATE TYPE "ServicoUnidade" AS ENUM (
+  'HECTARE',
+  'HORA',
+  'DIARIA',
+  'PROJETO',
+  'UNIDADE'
+);
+
+CREATE TYPE "ProjetoTipo" AS ENUM (
+  'DRONE',
+  'AMBIENTAL',
+  'IRRIGACAO',
+  'CONSULTORIA',
+  'OUTRO'
+);
+
+CREATE TYPE "ProjetoStatus" AS ENUM (
+  'PLANEJAMENTO',
+  'EM_ANDAMENTO',
+  'PAUSADO',
+  'CONCLUIDO',
+  'CANCELADO'
+);
+
 CREATE TABLE "Pessoa" (
   "id" TEXT PRIMARY KEY,
   "tipo" "PessoaTipo" NOT NULL,
@@ -82,17 +125,6 @@ CREATE TABLE "Propriedade" (
     REFERENCES "Pessoa"("id")
 );
 
-CREATE TYPE "AreaTipo" AS ENUM (
-  'CULTIVO',
-  'PASTAGEM',
-  'RESERVA',
-  'APP',
-  'SEDE',
-  'ESTRADA',
-  'AGUA',
-  'OUTRO'
-);
-
 CREATE TABLE "AreaPropriedade" (
   "id" TEXT PRIMARY KEY,
   "propriedadeId" TEXT NOT NULL,
@@ -113,22 +145,6 @@ CREATE TABLE "AreaPropriedade" (
     REFERENCES "Propriedade"("id")
 );
 
-CREATE TYPE "ServicoTipo" AS ENUM (
-  'DRONE',
-  'AMBIENTAL',
-  'IRRIGACAO',
-  'CONSULTORIA',
-  'OUTRO'
-);
-
-CREATE TYPE "ServicoUnidade" AS ENUM (
-  'HECTARE',
-  'HORA',
-  'DIARIA',
-  'PROJETO',
-  'UNIDADE'
-);
-
 CREATE TABLE "ServicoCatalogo" (
   "id" TEXT PRIMARY KEY,
   "nome" TEXT NOT NULL,
@@ -141,44 +157,20 @@ CREATE TABLE "ServicoCatalogo" (
   "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TYPE "ProjetoTipo" AS ENUM (
-  'DRONE',
-  'AMBIENTAL',
-  'IRRIGACAO',
-  'CONSULTORIA',
-  'OUTRO'
-);
-
-CREATE TYPE "ProjetoStatus" AS ENUM (
-  'PLANEJAMENTO',
-  'EM_ANDAMENTO',
-  'PAUSADO',
-  'CONCLUIDO',
-  'CANCELADO'
-);
-
 CREATE TABLE "Projeto" (
   "id" TEXT PRIMARY KEY,
-
   "clienteId" TEXT NOT NULL,
   "propriedadeId" TEXT,
-  "areaPropriedadeId" TEXT,
   "servicoCatalogoId" TEXT,
-
   "nome" TEXT NOT NULL,
   "tipo" "ProjetoTipo" NOT NULL,
   "descricao" TEXT,
-
   "dataInicio" TIMESTAMP,
   "dataFim" TIMESTAMP,
-
   "status" "ProjetoStatus" NOT NULL DEFAULT 'PLANEJAMENTO',
-
   "valorPrevisto" DOUBLE PRECISION,
   "valorFechado" DOUBLE PRECISION,
-
   "ativo" BOOLEAN NOT NULL DEFAULT TRUE,
-
   "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
   "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW(),
 
@@ -190,11 +182,26 @@ CREATE TABLE "Projeto" (
     FOREIGN KEY ("propriedadeId")
     REFERENCES "Propriedade"("id"),
 
-  CONSTRAINT "Projeto_areaPropriedadeId_fkey"
-    FOREIGN KEY ("areaPropriedadeId")
-    REFERENCES "AreaPropriedade"("id"),
-
   CONSTRAINT "Projeto_servicoCatalogoId_fkey"
     FOREIGN KEY ("servicoCatalogoId")
     REFERENCES "ServicoCatalogo"("id")
+);
+
+CREATE TABLE "ProjetoArea" (
+  "id" TEXT PRIMARY KEY,
+  "projetoId" TEXT NOT NULL,
+  "areaPropriedadeId" TEXT NOT NULL,
+  "observacoes" TEXT,
+  "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+
+  CONSTRAINT "ProjetoArea_projetoId_fkey"
+    FOREIGN KEY ("projetoId")
+    REFERENCES "Projeto"("id"),
+
+  CONSTRAINT "ProjetoArea_areaPropriedadeId_fkey"
+    FOREIGN KEY ("areaPropriedadeId")
+    REFERENCES "AreaPropriedade"("id"),
+
+  CONSTRAINT "ProjetoArea_unique"
+    UNIQUE ("projetoId", "areaPropriedadeId")
 );
