@@ -12,17 +12,18 @@ datasource db {
 }
 
 model Pessoa {
-  id        String   @id @default(cuid())
-  tipo      PessoaTipo
-  cpfCnpj   String?
-  nome      String
-  telefone  String?
-  email     String?
-  cidade    String?
-  estado    String?
-  ativo     Boolean  @default(true)
+  id       String     @id @default(cuid())
+  tipo     PessoaTipo
+  cpfCnpj  String?
+  nome     String
+  telefone String?
+  email    String?
+  cidade   String?
+  estado   String?
+  ativo    Boolean    @default(true)
 
   propriedades Propriedade[]
+  projetos     Projeto[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -37,27 +38,28 @@ enum PessoaTipo {
 }
 
 model Propriedade {
-  id             String   @id @default(cuid())
-  clienteId      String
-  nome           String
-  tipo           propriedade_tipo
-  matricula      String?
-  areaTotalHa    Float?
-  cidade         String?
-  estado         String?
-  endereco       String?
-  latitude       Float?
-  longitude      Float?
-  ativo          Boolean @default(true)
+  id          String           @id @default(cuid())
+  clienteId   String
+  nome        String
+  tipo        propriedade_tipo
+  matricula   String?
+  areaTotalHa Float?
+  cidade      String?
+  estado      String?
+  endereco    String?
+  latitude    Float?
+  longitude   Float?
+  ativo       Boolean          @default(true)
 
-  cliente     Pessoa           @relation(fields: [clienteId], references: [id])
-  areas AreaPropriedade[]
+  cliente  Pessoa            @relation(fields: [clienteId], references: [id])
+  areas    AreaPropriedade[]
+  projetos Projeto[]
 
-  created_at     DateTime @default(now())
-  updated_at     DateTime @default(now())
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
 }
 
-enum propriedade_tipo{
+enum propriedade_tipo {
   FAZENDA
   SITIO
   CHACARA
@@ -65,7 +67,7 @@ enum propriedade_tipo{
 }
 
 model AreaPropriedade {
-  id                 String            @id @default(cuid())
+  id                 String   @id @default(cuid())
   propriedadeId      String
   nome               String
   tipo               AreaTipo
@@ -75,12 +77,13 @@ model AreaPropriedade {
   latitudeCentro     Float?
   longitudeCentro    Float?
   coordenadasGeoJson Json?
-  ativo              Boolean           @default(true)
+  ativo              Boolean  @default(true)
 
-  propriedade        Propriedade       @relation(fields: [propriedadeId], references: [id])
+  propriedade Propriedade @relation(fields: [propriedadeId], references: [id])
+  projetos    Projeto[]
 
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum AreaTipo {
@@ -95,16 +98,18 @@ enum AreaTipo {
 }
 
 model ServicoCatalogo {
-  id          String      @id @default(cuid())
+  id          String         @id @default(cuid())
   nome        String
   tipo        ServicoTipo
   descricao   String?
   valorPadrao Float?
   unidade     ServicoUnidade
-  ativo       Boolean     @default(true)
+  ativo       Boolean        @default(true)
 
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  projetos Projeto[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum ServicoTipo {
@@ -121,4 +126,54 @@ enum ServicoUnidade {
   DIARIA
   PROJETO
   UNIDADE
+}
+
+model Projeto {
+  id String @id @default(cuid())
+
+  clienteId         String
+  propriedadeId     String?
+  areaPropriedadeId String?
+  servicoCatalogoId String?
+
+  nome      String
+  tipo      ProjetoTipo
+  descricao String?
+
+  dataInicio DateTime?
+  dataFim    DateTime?
+
+  status ProjetoStatus @default(PLANEJAMENTO)
+
+  valorPrevisto Float?
+  valorFechado  Float?
+
+  ativo Boolean @default(true)
+
+  cliente Pessoa @relation(fields: [clienteId], references: [id])
+
+  propriedade Propriedade? @relation(fields: [propriedadeId], references: [id])
+
+  areaPropriedade AreaPropriedade? @relation(fields: [areaPropriedadeId], references: [id])
+
+  servicoCatalogo ServicoCatalogo? @relation(fields: [servicoCatalogoId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ProjetoTipo {
+  DRONE
+  AMBIENTAL
+  IRRIGACAO
+  CONSULTORIA
+  OUTRO
+}
+
+enum ProjetoStatus {
+  PLANEJAMENTO
+  EM_ANDAMENTO
+  PAUSADO
+  CONCLUIDO
+  CANCELADO
 }

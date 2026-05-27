@@ -140,3 +140,61 @@ CREATE TABLE "ServicoCatalogo" (
   "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
   "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+CREATE TYPE "ProjetoTipo" AS ENUM (
+  'DRONE',
+  'AMBIENTAL',
+  'IRRIGACAO',
+  'CONSULTORIA',
+  'OUTRO'
+);
+
+CREATE TYPE "ProjetoStatus" AS ENUM (
+  'PLANEJAMENTO',
+  'EM_ANDAMENTO',
+  'PAUSADO',
+  'CONCLUIDO',
+  'CANCELADO'
+);
+
+CREATE TABLE "Projeto" (
+  "id" TEXT PRIMARY KEY,
+
+  "clienteId" TEXT NOT NULL,
+  "propriedadeId" TEXT,
+  "areaPropriedadeId" TEXT,
+  "servicoCatalogoId" TEXT,
+
+  "nome" TEXT NOT NULL,
+  "tipo" "ProjetoTipo" NOT NULL,
+  "descricao" TEXT,
+
+  "dataInicio" TIMESTAMP,
+  "dataFim" TIMESTAMP,
+
+  "status" "ProjetoStatus" NOT NULL DEFAULT 'PLANEJAMENTO',
+
+  "valorPrevisto" DOUBLE PRECISION,
+  "valorFechado" DOUBLE PRECISION,
+
+  "ativo" BOOLEAN NOT NULL DEFAULT TRUE,
+
+  "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+  "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+
+  CONSTRAINT "Projeto_clienteId_fkey"
+    FOREIGN KEY ("clienteId")
+    REFERENCES "Pessoa"("id"),
+
+  CONSTRAINT "Projeto_propriedadeId_fkey"
+    FOREIGN KEY ("propriedadeId")
+    REFERENCES "Propriedade"("id"),
+
+  CONSTRAINT "Projeto_areaPropriedadeId_fkey"
+    FOREIGN KEY ("areaPropriedadeId")
+    REFERENCES "AreaPropriedade"("id"),
+
+  CONSTRAINT "Projeto_servicoCatalogoId_fkey"
+    FOREIGN KEY ("servicoCatalogoId")
+    REFERENCES "ServicoCatalogo"("id")
+);
