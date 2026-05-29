@@ -11,6 +11,8 @@
 
 2. npm install prisma --save-dev
 3. npm install @prisma/client
+   npm install @prisma/adapter-pg pg
+   npm install -D @types/pg
 4. npx prisma init (vai criar prisma/, .env)
 5. Configurar o prisma com Supabase (.env)
    Projeto Supabase: RBS-SERVICES
