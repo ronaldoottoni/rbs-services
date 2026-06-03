@@ -73,3 +73,34 @@ export async function PUT(
         )
     }
 }
+
+//Deletar/Inativar uma pessoa
+export async function DELETE(
+    request: Request,
+    { params }: Params
+) {
+    try {
+        const { id } = await params;
+
+        const pessoa = await prisma.pessoa.update({
+            where: {
+                id,
+            },
+            data: {
+                ativo: false
+            }
+        })
+
+        return NextResponse.json(
+            {message: "Pessoa inativada com sucesso",
+                pessoa
+            }
+        );
+    } catch (error) {
+        console.error(error);
+        return NextResponse.json(
+            { error: "Erro ao atualizar pessoa" },
+            { status: 500 }
+        )
+    }
+}

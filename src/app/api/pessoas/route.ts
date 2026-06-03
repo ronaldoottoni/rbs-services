@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-//Listas Pessoas
+//Listar Pessoas
 export async function GET() {
     try {
         const pessoas = await prisma.pessoa.findMany({
+            where:{
+                ativo: true,
+            },
             orderBy: {
                 nome: "asc",
             },
@@ -20,7 +23,7 @@ export async function GET() {
     }
 }
 
-//Crias Pessoa
+//Criar Pessoa
 export async function POST(request: Request) {
     try {
         const body = await request.json();
