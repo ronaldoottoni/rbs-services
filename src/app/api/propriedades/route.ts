@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+
 //Listar Propriedades de uma pessoa
 export async function GET(request: Request) {
     try {
@@ -40,14 +41,28 @@ export async function GET(request: Request) {
 }
 
 //Criar Propriedade
-/* export async function POST(request: Request) {
+export async function POST(request: Request) {
     try {
         const body = await request.json();
+
         const propriedade = await prisma.propriedade.create({
             data: {
+                clienteId: body.clienteId,
 
+                nome: body.nome,
+                tipo: body.tipo,
+                matricula: body.matricula,
+                areaTotalHa: body.areaTotalHa,
+                cidade: body.cidade,
+                estado: body.estado,
+                endereco: body.endereco,
+
+                latitude: body.latitude,
+                longitude: body.longitude
             }
         })
+
+        return NextResponse.json(propriedade, { status: 201 });
 
     } catch (error) {
         console.error(error);
@@ -57,4 +72,4 @@ export async function GET(request: Request) {
             { status: 500 }
         )
     }
-} */
+}
