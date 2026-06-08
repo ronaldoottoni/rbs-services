@@ -7,11 +7,11 @@ export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
 
-        const pessoaId = searchParams.get("pessoaId")
+        const pessoaId = searchParams.get("pessoaId");
 
         if (!pessoaId) {
             return NextResponse.json(
-                { error: "Informe o codigo do Proprietário (pessoaId)" },
+                { error: "Informe o código do Proprietário (pessoaId)" },
                 { status: 400 }
             )
         }
