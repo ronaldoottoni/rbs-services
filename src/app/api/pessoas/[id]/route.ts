@@ -92,7 +92,8 @@ export async function DELETE(
         })
 
         return NextResponse.json(
-            {message: "Pessoa inativada com sucesso",
+            {
+                message: "Pessoa inativada com sucesso",
                 pessoa
             }
         );

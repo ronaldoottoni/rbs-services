@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 export async function GET() {
     try {
         const pessoas = await prisma.pessoa.findMany({
-            where:{
+            where: {
                 ativo: true,
             },
             orderBy: {
