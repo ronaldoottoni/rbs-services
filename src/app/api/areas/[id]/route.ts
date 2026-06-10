@@ -130,7 +130,7 @@ export async function DELETE(
 
         return NextResponse.json(
             {
-                error: "Área inativada com sucesso",
+                message: "Área inativada com sucesso",
                 area
             }
         )

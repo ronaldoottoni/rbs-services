@@ -10,7 +10,7 @@ export async function GET(request: Request) {
 
         if (!pessoaId) {
             return NextResponse.json(
-                { error: "Informe o código da Pessoa(pessoaId" },
+                { error: "Informe o código da Pessoa(pessoaId)" },
                 { status: 400 }
             )
         };
@@ -48,9 +48,22 @@ export async function POST(request: Request) {
         const projeto = await prisma.projeto.create({
             data: {
                 clienteId: body.clienteId,
-                propriedadeId: body.propriedadeId
+                propriedadeId: body.propriedadeId,
+                servicoCatalogoId: body.servicoId,
+
+                nome: body.nome,
+                tipo: body.tipo,
+                descricao: body.descricao,
+                dataInicio: body.dataInicio,
+                dataFim: body.dataFim,
+                status: body.status,
+                valorPrevisto: body.valorPrevisto,
+                valorFechado: body.valorFechado
             }
         })
+
+        return NextResponse.json(projeto, { status: 201 });
+        
     } catch (error) {
         console.error(error);
 
