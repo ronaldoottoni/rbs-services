@@ -36,7 +36,7 @@ export async function GET(
             )
         }
 
-        return NextResponse.json(area)
+        return NextResponse.json(area);
 
     } catch (error) {
         console.error(error);
