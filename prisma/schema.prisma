@@ -12,18 +12,18 @@ datasource db {
 }
 
 model Pessoa {
-  id        String     @id @default(cuid())
-  tipo      PessoaTipo
-  cpfCnpj   String?
-  nome      String
-  telefone  String?
-  email     String?
-  cidade    String?
-  estado    String?
-  ativo     Boolean    @default(true)
+  id       String     @id @default(cuid())
+  tipo     PessoaTipo
+  cpfCnpj  String?
+  nome     String
+  telefone String?
+  email    String?
+  cidade   String?
+  estado   String?
+  ativo    Boolean    @default(true)
 
   propriedades Propriedade[]
-  projetos      Projeto[]
+  projetos     Projeto[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -38,7 +38,7 @@ enum PessoaTipo {
 }
 
 model Propriedade {
-  id          String           @id @default(cuid())
+  id          String          @id @default(cuid())
   clienteId   String
   nome        String
   tipo        PropriedadeTipo
@@ -49,14 +49,14 @@ model Propriedade {
   endereco    String?
   latitude    Float?
   longitude   Float?
-  ativo       Boolean          @default(true)
+  ativo       Boolean         @default(true)
 
-  cliente     Pessoa           @relation(fields: [clienteId], references: [id])
-  areas       AreaPropriedade[]
-  projetos    Projeto[]
+  cliente  Pessoa            @relation(fields: [clienteId], references: [id])
+  areas    AreaPropriedade[]
+  projetos Projeto[]
 
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum PropriedadeTipo {
@@ -67,7 +67,7 @@ enum PropriedadeTipo {
 }
 
 model AreaPropriedade {
-  id                 String       @id @default(cuid())
+  id                 String   @id @default(cuid())
   propriedadeId      String
   nome               String
   tipo               AreaTipo
@@ -77,13 +77,13 @@ model AreaPropriedade {
   latitudeCentro     Float?
   longitudeCentro    Float?
   coordenadasGeoJson Json?
-  ativo              Boolean      @default(true)
+  ativo              Boolean  @default(true)
 
-  propriedade        Propriedade  @relation(fields: [propriedadeId], references: [id])
-  projetosArea       ProjetoArea[]
+  propriedade  Propriedade   @relation(fields: [propriedadeId], references: [id])
+  projetosArea ProjetoArea[]
 
-  createdAt          DateTime     @default(now())
-  updatedAt          DateTime     @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum AreaTipo {
@@ -98,18 +98,18 @@ enum AreaTipo {
 }
 
 model ServicoCatalogo {
-  id          String          @id @default(cuid())
+  id          String         @id @default(cuid())
   nome        String
   tipo        ServicoTipo
   descricao   String?
   valorPadrao Float?
   unidade     ServicoUnidade
-  ativo       Boolean         @default(true)
+  ativo       Boolean        @default(true)
 
-  projetos    Projeto[]
+  projetos Projeto[]
 
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum ServicoTipo {
@@ -129,41 +129,45 @@ enum ServicoUnidade {
 }
 
 model Projeto {
-  id                String           @id @default(cuid())
+  id String @id @default(cuid())
 
   clienteId         String
   propriedadeId     String?
   servicoCatalogoId String?
 
-  nome              String
-  tipo              ProjetoTipo
-  descricao         String?
-  dataInicio        DateTime?
-  dataFim           DateTime?
-  status            ProjetoStatus    @default(PLANEJAMENTO)
-  valorPrevisto     Float?
-  valorFechado      Float?
-  ativo             Boolean          @default(true)
+  nome          String
+  tipo          ProjetoTipo
+  descricao     String?
+  dataInicio    DateTime?
+  dataFim       DateTime?
+  status        ProjetoStatus @default(PLANEJAMENTO)
+  valorPrevisto Float?
+  valorFechado  Float?
+  ativo         Boolean       @default(true)
 
-  cliente           Pessoa           @relation(fields: [clienteId], references: [id])
-  propriedade       Propriedade?     @relation(fields: [propriedadeId], references: [id])
-  servicoCatalogo   ServicoCatalogo? @relation(fields: [servicoCatalogoId], references: [id])
-  areas             ProjetoArea[]
+  cliente         Pessoa           @relation(fields: [clienteId], references: [id])
+  propriedade     Propriedade?     @relation(fields: [propriedadeId], references: [id])
+  servicoCatalogo ServicoCatalogo? @relation(fields: [servicoCatalogoId], references: [id])
+  areas           ProjetoArea[]
 
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model ProjetoArea {
-  id                String            @id @default(cuid())
+  id                String  @id @default(cuid())
   projetoId         String
   areaPropriedadeId String
   observacoes       String?
 
-  projeto           Projeto           @relation(fields: [projetoId], references: [id])
-  areaPropriedade   AreaPropriedade   @relation(fields: [areaPropriedadeId], references: [id])
+  projeto         Projeto         @relation(fields: [projetoId], references: [id])
+  areaPropriedade AreaPropriedade @relation(fields: [areaPropriedadeId], references: [id])
 
-  createdAt         DateTime          @default(now())
+  execucoes ServicoExecutado[]
+
+  createdAt DateTime @default(now())
+
+  @@unique([projetoId, areaPropriedadeId])
 }
 
 enum ProjetoTipo {
@@ -180,4 +184,26 @@ enum ProjetoStatus {
   PAUSADO
   CONCLUIDO
   CANCELADO
+}
+
+model ServicoExecutado {
+  id String @id @default(cuid())
+
+  projetoAreaId String
+
+  dataExecucao DateTime
+
+  areaExecutadaHa Float?
+
+  produtoAplicado String?
+  doseAplicada    String?
+
+  valorExecutado Float?
+
+  observacoes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  projetoArea ProjetoArea @relation(fields: [projetoAreaId], references: [id])
 }

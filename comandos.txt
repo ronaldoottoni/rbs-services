@@ -29,7 +29,8 @@
 7. Rodar - npm install dotenv
 8. Rodar - npx prisma db pull
 9. prisma/schema.prisma : Incluir as tabelas
-10. npx prisma generate
+10. npx prisma format 
+11. npx prisma generate
 
 
 
@@ -206,4 +207,33 @@ CREATE TABLE "ProjetoArea" (
 
   CONSTRAINT "ProjetoArea_unique"
     UNIQUE ("projetoId", "areaPropriedadeId")
+);
+
+CREATE TABLE servicos_executados (
+    id                  TEXT PRIMARY KEY,
+
+    projeto_id          TEXT NOT NULL,
+    projeto_area_id     TEXT NOT NULL,
+
+    data_execucao       TIMESTAMP NOT NULL,
+
+    area_executada_ha   NUMERIC(15,4),
+
+    produto_aplicado    VARCHAR(255),
+    dose_aplicada       VARCHAR(100),
+
+    valor_executado     NUMERIC(15,2),
+
+    observacoes         TEXT,
+
+    created_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_serv_exec_projeto
+        FOREIGN KEY (projeto_id)
+        REFERENCES projetos(id),
+
+    CONSTRAINT fk_serv_exec_projeto_area
+        FOREIGN KEY (projeto_area_id)
+        REFERENCES projeto_areas(id)
 );
