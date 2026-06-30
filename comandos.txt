@@ -30,6 +30,8 @@
 8. Rodar - npx prisma db pull
 9. prisma/schema.prisma : Incluir as tabelas
 10. npx prisma format 
+10.1 quando tem tabela nova. 
+    npx prisma migrate dev --name add_financeiro_contas_receber
 11. npx prisma generate
 
 

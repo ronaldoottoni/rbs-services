@@ -22,8 +22,9 @@ model Pessoa {
   estado   String?
   ativo    Boolean    @default(true)
 
-  propriedades Propriedade[]
-  projetos     Projeto[]
+  propriedades  Propriedade[]
+  projetos      Projeto[]
+  contasReceber ContaReceber[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -149,6 +150,7 @@ model Projeto {
   propriedade     Propriedade?     @relation(fields: [propriedadeId], references: [id])
   servicoCatalogo ServicoCatalogo? @relation(fields: [servicoCatalogoId], references: [id])
   areas           ProjetoArea[]
+  contasReceber   ContaReceber[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -198,12 +200,90 @@ model ServicoExecutado {
   produtoAplicado String?
   doseAplicada    String?
 
-  valorExecutado Float?
+  valorExecutado Decimal @db.Decimal(15, 2)
 
   observacoes String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  projetoArea ProjetoArea @relation(fields: [projetoAreaId], references: [id])
+  projetoArea   ProjetoArea    @relation(fields: [projetoAreaId], references: [id])
+  contasReceber ContaReceber[]
+}
+
+model ContaReceber {
+  id String @id @default(cuid())
+
+  clienteId          String
+  projetoId          String?
+  servicoExecutadoId String?
+
+  numeroDocumento String?
+  descricao       String
+  competencia     DateTime?
+  dataEmissao     DateTime
+  dataVencimento  DateTime
+  valorOriginal   Decimal          @db.Decimal(15, 2)
+  valorDesconto   Decimal          @default(0) @db.Decimal(15, 2)
+  valorJuros      Decimal          @default(0) @db.Decimal(15, 2)
+  valorMulta      Decimal          @default(0) @db.Decimal(15, 2)
+  valorRecebido   Decimal          @default(0) @db.Decimal(15, 2)
+  valorAberto     Decimal          @default(0) @db.Decimal(15, 2)
+  status          FinanceiroStatus @default(ABERTO)
+  formaPagamento  FormaPagamento?  @default(PIX)
+  observacoes     String?
+  ativo           Boolean          @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cliente          Pessoa            @relation(fields: [clienteId], references: [id])
+  projeto          Projeto?          @relation(fields: [projetoId], references: [id])
+  servicoExecutado ServicoExecutado? @relation(fields: [servicoExecutadoId], references: [id])
+
+  recebimento Recebimento[]
+}
+
+enum FinanceiroStatus {
+  ABERTO
+  PARCIALMENTE_RECEBIDO
+  RECEBIDO
+  VENCIDO
+  CANCELADO
+  RENEGOCIADO
+}
+
+enum FormaPagamento {
+  PIX
+  DINHEIRO
+  CARTAO_CREDITO
+  CARTAO_DEBITO
+  TRANSFERENCIA
+  BOLETO
+  CHEQUE
+  OUTROS
+}
+
+model Recebimento {
+  id             String @id @default(cuid())
+  contaReceberId String
+
+  dataRecebimento  DateTime
+  valorRecebido    Decimal        @db.Decimal(15, 2)
+  valorJuros       Decimal        @default(0) @db.Decimal(15, 2)
+  valorMulta       Decimal        @default(0) @db.Decimal(15, 2)
+  valorDesconto    Decimal        @default(0) @db.Decimal(15, 2)
+  formaRecebimento FormaPagamento
+  contaBancoId     String?
+  comprovanteUrl   String?
+  numeroReferencia String?
+  observacoes      String?
+  estornado        Boolean        @default(false)
+  dataEstorno      DateTime?
+  motivoEstorno    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  contaReceber ContaReceber @relation(fields: [contaReceberId], references: [id])
 }
