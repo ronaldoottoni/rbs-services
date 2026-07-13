@@ -8,20 +8,52 @@ export async function GET(request: Request) {
         const { searchParams } = new URL(request.url);
 
         const clienteId = searchParams.get("clienteId");
-        const status = searchParams.get("status");
+        const status = searchParams.get("status") as FinanceiroStatus | null;
+
+        const projetoId = searchParams.get("projetoId");
+        const vencimentoIni = searchParams.get("vencimentoIni");
+        const vencimentoFin = searchParams.get("vencimentoFin");
+        const flagCancelados = searchParams.get("flagCancelados");
 
         const contasReceber = await prisma.contaReceber.findMany({
             where: {
                 ativo: true,
 
                 ...(clienteId && { clienteId }),
-                ...(status && { status: status as FinanceiroStatus }),
+                ...(status
+                    ? { status }
+                    : flagCancelados !== "true"
+                        ? { status: { not: "CANCELADO" } }
+                        : {}),
+
+                ...(projetoId && { projetoId }),
+                ...(flagCancelados !== "true" && {
+                    status: {
+                        not: "CANCELADO"
+                    }
+                }),
+
+                ...(vencimentoIni || vencimentoFin
+                    ? {
+                        dataVencimento: {
+                            ...(vencimentoIni && {
+                                gte: new Date(vencimentoIni),
+                            }),
+                            ...(vencimentoFin && {
+                                lte: new Date(vencimentoFin),
+                            }),
+                        },
+                    }
+                    : {}),
             },
             orderBy: {
                 dataVencimento: "asc"
             },
             include: {
                 cliente: true,
+                projeto: true,
+                servicoExecutado: true,
+                recebimento: true,
             }
         });
 
