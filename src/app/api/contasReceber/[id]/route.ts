@@ -113,6 +113,20 @@ export async function DELETE(
             )
         };
 
+        const recebimentoExiste = await prisma.recebimento.findFirst({
+            where: {
+                contaReceberId: id,
+                estornado: false,
+            }
+        })
+
+        if (recebimentoExiste) {
+            return NextResponse.json(
+                { error: "Não é possível cancelar títuclo com recebimento registrado. Estorne o recebimento antes." },
+                { status: 400 }
+            )
+        }
+
         const titulo = await prisma.contaReceber.update({
             where: {
                 id
