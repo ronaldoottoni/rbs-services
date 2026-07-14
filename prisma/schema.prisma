@@ -25,6 +25,7 @@ model Pessoa {
   propriedades  Propriedade[]
   projetos      Projeto[]
   contasReceber ContaReceber[]
+  contasPagar   ContaPagar[]   @relation("FornecedorContaPagar")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -152,8 +153,9 @@ model Projeto {
   areas           ProjetoArea[]
   contasReceber   ContaReceber[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  contaPagars ContaPagar[]
 }
 
 model ProjetoArea {
@@ -286,4 +288,45 @@ model Recebimento {
   updatedAt DateTime @updatedAt
 
   contaReceber ContaReceber @relation(fields: [contaReceberId], references: [id])
+}
+
+model ContaPagar {
+  id String @id @default(cuid())
+
+  fornecedorId    String
+  projetoId       String?
+  numeroDocumento String?
+  descricao       String
+  competencia     DateTime?
+  dataEmissao     DateTime
+  dataVencimento  DateTime
+
+  valorOriginal Decimal @db.Decimal(15, 2)
+  valorDesconto Decimal @db.Decimal(15, 2)
+  valorJuros    Decimal @db.Decimal(15, 2)
+  valorMulta    Decimal @db.Decimal(15, 2)
+  valorPago     Decimal @db.Decimal(15, 2)
+  valorAberto   Decimal @db.Decimal(15, 2)
+
+  status         FinanceiroStatus  @default(ABERTO)
+  formaPagamento FormaPagamento?
+  categoria      CategoriaDespesa?
+  observacoes    String?
+  ativo          Boolean           @default(true)
+
+  fornecedor Pessoa   @relation("FornecedorContaPagar", fields: [fornecedorId], references: [id])
+  projeto    Projeto? @relation(fields: [projetoId], references: [id])
+  // pagamentos      Pagamento[]
+}
+
+enum CategoriaDespesa {
+  INSUMO
+  COMBUSTIVEL
+  MANUTENCAO
+  EQUIPAMENTO
+  SERVICO_TERCEIRO
+  IMPOSTO
+  TRANSPORTE
+  ADMINISTRATIVO
+  OUTROS
 }
