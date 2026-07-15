@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { FinanceiroStatus } from "@prisma/client";
+import { FinanceiroStatus, FormaPagamento } from "@prisma/client";
+import { PrismaClientRustPanicError } from "@prisma/client/runtime/client";
 
 //Listar Todo o Contas a Pagar
 export async function GET(request: Request) {
@@ -64,6 +65,48 @@ export async function GET(request: Request) {
 
         return NextResponse.json(
             { error: "Erro ao listar Contas a Pagar" },
+            { status: 500 }
+        )
+    }
+}
+
+//Criar um Contas a Pagar
+export async function POST(request: Request) {
+    try {
+        const body = await request.json();
+
+        const contaPagar = await prisma.contaPagar.create({
+            data: {
+                fornecedorId: body.fornecedorId,
+                projetoId: body.projetoId || null,
+                numeroDocumento: body.numeroDocumento || null,
+                descricao: body.descricao,
+                competencia: body.competencia || null,
+                dataEmissao: body.dataEmissao,
+                dataVencimento: body.dataVencimento,
+                valorOriginal: body.valorOriginal,
+                valorDesconto: body.valorDesconto,
+                valorJuros: body.valorJuros,
+                valorMulta: body.valorMulta,
+                valorPago: body.valorPago,
+                valorAberto:
+                    Number(body.valorOriginal || 0) +
+                    Number(body.valorJuros || 0) +
+                    Number(body.valorMulta || 0) -
+                    Number(body.valorDesconto || 0),
+                formaPagamento: body.formaPagamento || null,
+                categoria: body.categoria || null,
+                observacoes: body.observacoes || null,
+            }
+        });
+
+        return NextResponse.json(contaPagar, { status: 201 })
+
+    } catch (error) {
+        console.error(error);
+
+        return NextResponse.json(
+            { error: "Erro ao criar o Contas a Pagar!" },
             { status: 500 }
         )
     }
