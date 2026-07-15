@@ -122,7 +122,7 @@ export async function DELETE(
 
         if (recebimentoExiste) {
             return NextResponse.json(
-                { error: "Não é possível cancelar títuclo com recebimento registrado. Estorne o recebimento antes." },
+                { error: "Não é possível cancelar título com recebimento registrado. Estorne o recebimento antes." },
                 { status: 400 }
             )
         }
