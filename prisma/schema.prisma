@@ -314,9 +314,9 @@ model ContaPagar {
   observacoes    String?
   ativo          Boolean           @default(true)
 
-  fornecedor Pessoa   @relation("FornecedorContaPagar", fields: [fornecedorId], references: [id])
-  projeto    Projeto? @relation(fields: [projetoId], references: [id])
-  // pagamentos      Pagamento[]
+  fornecedor Pessoa      @relation("FornecedorContaPagar", fields: [fornecedorId], references: [id])
+  projeto    Projeto?    @relation(fields: [projetoId], references: [id])
+  pagamento  Pagamento[]
 }
 
 enum CategoriaDespesa {
@@ -329,4 +329,28 @@ enum CategoriaDespesa {
   TRANSPORTE
   ADMINISTRATIVO
   OUTROS
+}
+
+model Pagamento {
+  id           String @id @default(cuid())
+  contaPagarId String
+
+  dataPagamento    DateTime
+  valorRecebido    Decimal        @db.Decimal(15, 2)
+  valorJuros       Decimal        @default(0) @db.Decimal(15, 2)
+  valorMulta       Decimal        @default(0) @db.Decimal(15, 2)
+  valorDesconto    Decimal        @default(0) @db.Decimal(15, 2)
+  formaPagamento   FormaPagamento
+  contaBancoId     String?
+  comprovanteUrl   String?
+  numeroReferencia String?
+  observacoes      String?
+  estornado        Boolean        @default(false)
+  dataEstorno      DateTime?
+  motivoEstorno    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  contaPagar ContaPagar @relation(fields: [contaPagarId], references: [id])
 }

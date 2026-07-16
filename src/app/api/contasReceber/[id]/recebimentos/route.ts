@@ -7,7 +7,7 @@ interface Params {
     }>
 }
 
-//Listar todos os pagamentos de um título
+//Listar todos os recebimentos de um título
 export async function GET(
     request: Request,
     { params }: Params
@@ -30,7 +30,7 @@ export async function GET(
         console.error(error);
 
         return NextResponse.json(
-            { error: "Erro ao localizar os pagamentos do título!" },
+            { error: "Erro ao localizar os recebimentos do título!" },
             { status: 500 }
         )
     }

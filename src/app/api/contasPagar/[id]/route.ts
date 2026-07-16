@@ -118,7 +118,7 @@ export async function DELETE(
         //        estornado: false,
         //    }
         //});
-//
+        //
         //if (pagamentoExiste) {
         //    return NextResponse.json(
         //        { error: "Não é possível cancelar título com pagamento retgistrado. Estorne o pagamento antes." },
