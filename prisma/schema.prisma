@@ -336,7 +336,7 @@ model Pagamento {
   contaPagarId String
 
   dataPagamento    DateTime
-  valorRecebido    Decimal        @db.Decimal(15, 2)
+  valorPago        Decimal        @db.Decimal(15, 2)
   valorJuros       Decimal        @default(0) @db.Decimal(15, 2)
   valorMulta       Decimal        @default(0) @db.Decimal(15, 2)
   valorDesconto    Decimal        @default(0) @db.Decimal(15, 2)
