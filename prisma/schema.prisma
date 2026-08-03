@@ -253,6 +253,8 @@ enum FinanceiroStatus {
   VENCIDO
   CANCELADO
   RENEGOCIADO
+  PARCIALMENTE_PAGO
+  PAGO
 }
 
 enum FormaPagamento {

@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { GET } from "../route";
 
 interface Params {
     params: Promise<{
@@ -77,9 +76,9 @@ export async function POST(
             );
         }
 
-        const resultado = await prisma.$transaction(async (tx) =>{
+        const resultado = await prisma.$transaction(async (tx) => {
             const pagamento = await tx.pagamento.create({
-                data:{
+                data: {
                     contaPagarId: id,
                     dataPagamento: body.dataPagamento,
                     valorPago: body.valorPago,
@@ -88,12 +87,68 @@ export async function POST(
                     valorDesconto: body.valorDesconto || 0,
                     formaPagamento: body.formaPagamento
                 }
-            })
+            });
+
+            const totais = await tx.pagamento.aggregate({
+                where: {
+                    contaPagarId: id,
+                    estornado: false,
+                },
+                _sum: {
+                    valorPago: true,
+                    valorJuros: true,
+                    valorMulta: true,
+                    valorDesconto: true,
+                },
+            });
+
+            const valorPago = Number(totais._sum.valorPago || 0);
+            const valorJuros = Number(totais._sum.valorJuros || 0);
+            const valorMulta = Number(totais._sum.valorMulta || 0);
+            const valorDesconto = Number(totais._sum.valorDesconto || 0);
+
+            const valorOriginal = Number(tituloExiste.valorOriginal);
+
+            const valorTotalTitulo =
+                valorOriginal +
+                valorJuros +
+                valorMulta -
+                valorDesconto;
+
+            const valorAbertoCalculado = valorTotalTitulo - valorPago;
+            const valorAberto = valorAbertoCalculado < 0 ? 0 : valorAbertoCalculado;
+
+            let status: "ABERTO" | "PARCIALMENTE_PAGO" | "PAGO" = "ABERTO";
+
+            if (valorAberto <= 0) {
+                status = "PAGO";
+            } else if (valorPago > 0) {
+                status = "PARCIALMENTE_PAGO";
+            }
+
+            const tituloAtualizado = await tx.contaPagar.update({
+                where: {
+                    id,
+                },
+                data: {
+                    valorPago,
+                    valorJuros,
+                    valorMulta,
+                    valorDesconto,
+                    valorAberto,
+                    status,
+                }
+            });
+
+            return {
+                pagamento,
+                tituloAtualizado,
+            }
         })
     } catch (error) {
         console.error(error);
         return NextResponse.json(
-            { error: "Erro ao gerar o pagamento do título" },
+            { error: "Erro ao registrar o Pagamento!" },
             { status: 500 }
         )
     }
