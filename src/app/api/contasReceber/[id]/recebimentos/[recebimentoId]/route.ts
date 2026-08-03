@@ -8,7 +8,7 @@ interface Params {
     }>
 }
 
-//Registrar estorno de Pagamento
+//Registrar estorno de Recebimento
 export async function POST(
     request: Request,
     { params }: Params
