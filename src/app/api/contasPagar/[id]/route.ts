@@ -112,19 +112,19 @@ export async function DELETE(
             )
         };
 
-        //const pagamentoExiste = await prisma.pagamento.findFirst({
-        //    where: {
-        //        contaPagarId: id,
-        //        estornado: false,
-        //    }
-        //});
-        //
-        //if (pagamentoExiste) {
-        //    return NextResponse.json(
-        //        { error: "Não é possível cancelar título com pagamento retgistrado. Estorne o pagamento antes." },
-        //        { status: 400 }
-        //    )
-        //}
+        const pagamentoExiste = await prisma.pagamento.findFirst({
+            where: {
+                contaPagarId: id,
+                estornado: false,
+            }
+        });
+        
+        if (pagamentoExiste) {
+            return NextResponse.json(
+                { error: "Não é possível cancelar título com pagamento retgistrado. Estorne o pagamento antes." },
+                { status: 400 }
+            )
+        }
 
         const titulo = await prisma.contaReceber.update({
             where: {

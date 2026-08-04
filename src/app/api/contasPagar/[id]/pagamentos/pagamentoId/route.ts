@@ -1,63 +1,52 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { FinanceiroStatus } from "@prisma/client";
 
 interface Params {
     params: Promise<{
         id: string;
         pagamentoId: string;
-    }>
+    }>;
 }
 
-//Registrar estorno de Pagamento
+// Registrar estorno de pagamento
 export async function POST(
     request: Request,
     { params }: Params
 ) {
     try {
         const { id, pagamentoId } = await params;
-
         const body = await request.json();
 
-        if (!body.motivoEstorno) {
+        if (!body.motivoEstorno?.trim()) {
             return NextResponse.json(
                 { error: "Informe o motivo do estorno" },
                 { status: 400 }
-            )
-        };
+            );
+        }
 
         const pagamentoExiste = await prisma.pagamento.findFirst({
             where: {
                 id: pagamentoId,
-                contaPagarId: id
-            }
+                contaPagarId: id,
+            },
         });
 
         if (!pagamentoExiste) {
             return NextResponse.json(
                 { error: "Pagamento não localizado" },
                 { status: 404 }
-            )
-        };
+            );
+        }
 
         if (pagamentoExiste.estornado) {
             return NextResponse.json(
-                { error: "Pagamento já for estornado" },
+                { error: "Pagamento já foi estornado" },
                 { status: 400 }
-            )
-        };
+            );
+        }
 
         const resultado = await prisma.$transaction(async (tx) => {
-            const pagamentoEstornado = await tx.pagamento.update({
-                where: {
-                    id: pagamentoId,
-                },
-                data: {
-                    estornado: true,
-                    dataEstorno: new Date(),
-                    motivoEstorno: body.moticoEstorno
-                },
-            });
-
             const titulo = await tx.contaPagar.findUnique({
                 where: {
                     id,
@@ -67,6 +56,17 @@ export async function POST(
             if (!titulo) {
                 throw new Error("Título não encontrado");
             }
+
+            const pagamentoEstornado = await tx.pagamento.update({
+                where: {
+                    id: pagamentoId,
+                },
+                data: {
+                    estornado: true,
+                    dataEstorno: new Date(),
+                    motivoEstorno: body.motivoEstorno.trim(),
+                },
+            });
 
             const totais = await tx.pagamento.aggregate({
                 where: {
@@ -81,12 +81,25 @@ export async function POST(
                 },
             });
 
-            const valorPago = Number(totais._sum.valorPago || 0);
-            const valorJuros = Number(totais._sum.valorJuros || 0);
-            const valorMulta = Number(totais._sum.valorMulta || 0);
-            const valorDesconto = Number(totais._sum.valorDesconto || 0);
+            const valorPago = Number(
+                totais._sum.valorPago || 0
+            );
 
-            const valorOriginal = Number(titulo.valorOriginal);
+            const valorJuros = Number(
+                totais._sum.valorJuros || 0
+            );
+
+            const valorMulta = Number(
+                totais._sum.valorMulta || 0
+            );
+
+            const valorDesconto = Number(
+                totais._sum.valorDesconto || 0
+            );
+
+            const valorOriginal = Number(
+                titulo.valorOriginal
+            );
 
             const valorTotalTitulo =
                 valorOriginal +
@@ -94,43 +107,57 @@ export async function POST(
                 valorMulta -
                 valorDesconto;
 
-            const valorAbertoCalculado = valorTotalTitulo - valorPago;
-            const valorAberto = valorAbertoCalculado < 0 ? 0 : valorAbertoCalculado;
+            const valorAbertoCalculado =
+                valorTotalTitulo - valorPago;
 
-            let status: "ABERTO" | "PARCIALMENTE_PAGO" | "PAGO" = "ABERTO";
+            const valorAberto =
+                valorAbertoCalculado < 0
+                    ? 0
+                    : valorAbertoCalculado;
+
+            let status = FinanceiroStatus.ABERTO;
 
             if (valorAberto <= 0) {
-                status = "PAGO";
-            } else if (valorAberto > 0) {
-                status = "PARCIALMENTE_PAGO";
+                status = FinanceiroStatus.PAGO;
+            } else if (valorPago > 0) {
+                status =
+                    FinanceiroStatus.PARCIALMENTE_PAGO;
             }
 
-            const tituloAtualizado = await tx.contaPagar.update({
-                where:{
-                    id
-                },
-                data: {
-                    valorPago,
-                    valorJuros,
-                    valorMulta,
-                    valorDesconto,
-                    valorAberto,
-                    status,
-                }
-            });
+            const tituloAtualizado =
+                await tx.contaPagar.update({
+                    where: {
+                        id,
+                    },
+                    data: {
+                        valorPago,
+                        valorJuros,
+                        valorMulta,
+                        valorDesconto,
+                        valorAberto,
+                        status,
+                    },
+                });
 
             return {
                 pagamentoEstornado,
-                tituloAtualizado
-            }
-        })
+                tituloAtualizado,
+            };
+        });
 
+        return NextResponse.json(resultado);
     } catch (error) {
-        console.error(error);
+        console.error(
+            "Erro ao registrar estorno do pagamento:",
+            error
+        );
 
         return NextResponse.json(
-            { error: "Erro ao Registrar Estorno do Pagamento!" },
+            {
+                error:
+                    "Erro ao registrar estorno do pagamento",
+            },
             { status: 500 }
-        )
+        );
     }
 }
